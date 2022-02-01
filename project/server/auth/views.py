@@ -22,7 +22,7 @@ class RegisterAPI(MethodView):
         # get the post data
         post_data = request.get_json(); print(request)
         # check if user already exists
-        user = User.query.filter_by(email=post_data.get('email')).first()
+        user = User.query.filter_by(email=post_data.get('email')).first()   #JSON???
         if not user:
             try:
                 user = User(
@@ -35,12 +35,15 @@ class RegisterAPI(MethodView):
                 db.session.commit()
                 # generate the auth token
                 auth_token = user.encode_auth_token(user.id)
+
                 responseObject = {
                     'status': 'success',
                     'message': 'Successfully registered.',
-                    'auth_token': auth_token.decode()
+                    'auth_token': auth_token  #auth_token.decode()
                 }
+
                 return make_response(jsonify(responseObject)), 201
+                
             except Exception as e:
                 responseObject = {
                     'status': 'fail',
@@ -54,13 +57,41 @@ class RegisterAPI(MethodView):
             }
             return make_response(jsonify(responseObject)), 202
 
+class indexAPI(MethodView):
+    """
+    List Registered Users Resource
+    """
+
+    def get(self):
+        # queries db for all registed users
+        allUsers = User.query.all()
+        
+        # List of all registered users
+        allProps = []
+
+        # Appends info of each individual user
+        for i in allUsers:
+            allProps.append(( "email:" + i.email, "id:" + str(i.id), "registered_on:" + str(i.registered_on)))
+
+        responseObject = {
+            'status': 'success',
+            'users': allProps
+        }
+        return make_response(jsonify(responseObject)), 201
 
 # define the API resources
 registration_view = RegisterAPI.as_view('register_api')
+index_view = indexAPI.as_view('index_api')
 
 # add Rules for API Endpoints
 auth_blueprint.add_url_rule(
     '/auth/register',
     view_func=registration_view,
     methods=['POST', 'GET']
+)
+
+auth_blueprint.add_url_rule(
+    '/users/index',
+    view_func=index_view,
+    methods=['GET']
 )
