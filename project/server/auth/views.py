@@ -22,7 +22,7 @@ class RegisterAPI(MethodView):
         # get the post data
         post_data = request.get_json(); print(request)
         # check if user already exists
-        user = User.query.filter_by(email=post_data.get('email')).first()   #JSON???
+        user = User.query.filter_by(email=post_data.get('email')).first()
         if not user:
             try:
                 user = User(
@@ -39,7 +39,7 @@ class RegisterAPI(MethodView):
                 responseObject = {
                     'status': 'success',
                     'message': 'Successfully registered.',
-                    'auth_token': auth_token  #auth_token.decode()
+                    'auth_token': auth_token
                 }
 
                 return make_response(jsonify(responseObject)), 201
