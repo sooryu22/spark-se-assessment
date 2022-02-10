@@ -34,6 +34,10 @@ db = SQLAlchemy(app)
 from project.server.models import User
 migrate = Migrate(app, db)
 
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
 @app.route("/")
 def root_site():
     return "<p>It works!</p>"
